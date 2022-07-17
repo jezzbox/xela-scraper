@@ -8,18 +8,18 @@ class HtmlScraper(XelaScraper):
         super().__init__(response)
         self.parsed_html:bs4.BeautifulSoup = None
     
-    def parse_bs4(self, parse_filter:tuple|None = None) -> bs4.BeautifulSoup:
+    def parse_bs4(self, filter:tuple|None = None) -> bs4.BeautifulSoup:
         soup_strainer = bs4.SoupStrainer(
-            parse_filter[0],parse_filter[1]) if parse_filter else None
+            filter[0],filter[1]) if filter else None
 
         self.parsed_html = bs4.BeautifulSoup(
             self.content, 'html.parser', parse_only=soup_strainer)
 
         return self
 
-    def parse(self, parser:str = 'bs4', parse_filter:None=None):
+    def parse(self, parser:str = 'bs4', filter:None=None):
         if parser == 'bs4':
-            return self.parse_bs4(parse_filter)
+            return self.parse_bs4(filter)
 
     def is_soup(self):
         return isinstance(self.parsed_html, (bs4.BeautifulSoup, bs4.element, bs4.Tag))
@@ -44,5 +44,7 @@ class HtmlScraper(XelaScraper):
         if self.is_soup():
             parsed_html = self.extract_one(selector)
             if parsed_html:
-                return str(parsed_html.text).strip()
+                parsed_str = str(parsed_html.text).strip()
+                parsed_html.decompose()
+                return parsed_str
             return None
